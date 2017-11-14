@@ -1,0 +1,55 @@
+.App {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 50px;
+  display: flex;
+}
+
+#map {
+  float: left;
+  flex: 1;
+}
+
+.map p {
+  background-color: red;
+}
+
+.map p:hover {
+  cursor : pointer;
+}
+
+.secondSide {
+  width: 50%;
+  height: 100vh;
+}
+
+.form {
+  margin-top: 100px;
+  margin-bottom: 100px;
+  display: flex;
+  flex-direction: column;
+}
+
+.infoWindow {
+  width: 200px;
+  height: 200px;
+  background-color: darkseagreen;
+}
+
+.active {
+  color: white;
+}
+
+.small {
+  width: 10px;
+  height: 10px;
+  background-color: yellow;
+}
+
+.big {
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  border-radius: 50%;
+}
