@@ -27,26 +27,6 @@ const markersData = [
     }
 ];
 
-var reformatedDatas = [];
-axios.get("http://10.150.14.40:8000/api/places")
-    .then(res => {
-        let datas = res.data.places;
-        let reformatedDatas = [];
-        datas.forEach((element) => {
-            reformatedDatas.push(
-                {
-                    id : element.id,
-                    lat : element.coordsLongitude,
-                    lng : element.coordsLatitude,
-                    name : element.name,
-                    adress : element.adress,
-                    likeSpot : element.likeSpot
-                }
-            )
-        });
-    })
-    .catch(error => console.log(error));
-
 
 const MAP = {
     defaultZoom: 17,
@@ -55,10 +35,6 @@ const MAP = {
         maxZoom: 19
     }
 };
-
-console.log(markersData);
-
-//
 
 export default class GoogleMap extends React.PureComponent {
     constructor(props) {
@@ -71,11 +47,6 @@ export default class GoogleMap extends React.PureComponent {
             clusters: [],
             places : []
         };
-
-    }
-
-    datas () {
-
     }
 
     componentDidMount() {
@@ -83,12 +54,12 @@ export default class GoogleMap extends React.PureComponent {
             .then(res => {
                 let datas = res.data.places;
                 let reformatedDatas = [];
-                datas.forEach((element) => {
+                datas.forEach((element, index) => {
                     reformatedDatas.push(
                         {
-                            id : element.id,
-                            lat : element.coordsLongitude,
-                            lng : element.coordsLatitude,
+                            id : index,
+                            lat : element.coordsLatitude,
+                            lng :  element.coordsLongitude,
                             name : element.name,
                             adress : element.adress,
                             likeSpot : element.likeSpot
@@ -97,20 +68,20 @@ export default class GoogleMap extends React.PureComponent {
                 });
                 this.setState({
                     places : reformatedDatas
-                });
-                console.log(res)
+                }, () => {
+                    // After having setState places, we create clusters
+                    this.createClusters(this.props);
+                })
             })
             .catch(error => console.log(error));
     }
 
     getClusters = props => {
-        //console.log(props);
         // C'est ici qu'on passe nos marqueurs - MarkersData
-        console.log(this.state.places);
-        const clusters = supercluster(markersData, {
+        const clusters = supercluster(this.state.places, {
             minZoom: 0,
             maxZoom: 16,
-            radius: 60
+            radius: 20
         });
 
         return clusters(this.state.mapOptions);
@@ -127,7 +98,7 @@ export default class GoogleMap extends React.PureComponent {
                 points
             }))
                 : []
-        });
+        })
     };
 
     handleMapChange = ({ center, zoom, bounds }) => {
@@ -165,7 +136,7 @@ export default class GoogleMap extends React.PureComponent {
                                     key={item.id}
                                     lat={item.points[0].lat}
                                     lng={item.points[0].lng}
-                                />
+                                ></div>
                             );
                         }
 
@@ -174,8 +145,10 @@ export default class GoogleMap extends React.PureComponent {
                                 key={item.id}
                                 lat={item.lat}
                                 lng={item.lng}
-                                points={item.points}
-                            />
+                                points={item.points.length}
+                            >
+                                {item.points.length}
+                            </div>
                         );
                     })}
 

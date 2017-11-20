@@ -5,84 +5,60 @@ export default class Form extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            picture : ""
+            name : ''
         };
         this.handleUserInput = this.handleUserInput.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.fileUpload = this.fileUpload.bind(this);
+        this.handleChangeName = this.handleChangeName.bind(this);
     }
 
     handleUserInput(e){
-        console.log(e.target);
+        console.log(e.target.files[0]);
         this.setState({
-            picture : e.target.value
+            file : e.target.files[0]
         })
     }
 
+    handleChangeName(e) {
+        this.setState({
+            name : e.target.value
+        })
+    }
+
+    fileUpload(file) {
+        const url = 'http://10.150.14.40:8000/api/test';
+        /*
+        As with regular form data, you can append multiple values with the same name.
+        For example (and being compatible with PHP's naming conventions by adding [] to the name):
+        formData.append('userpic[]', myFileInput1.files[0], 'chris1.jpg');
+        formData.append('userpic[]', myFileInput2.files[0], 'chris2.jpg');
+        This technique makes it simpler to process multi-file uploads because the resultant data structure
+        is more conducive to looping.
+         */
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('name', this.state.name);
+        const config = {
+            headers : {
+                'content-type' : 'multipart/form-data'
+            }
+        };
+        return axios.post(url, formData, config)
+    }
 
 
     handleSubmit(e) {
         e.preventDefault();
-        let path = this.state.picture;
-        let file = this.refs.file.files[0];
-        console.log(file);
-        let name = file.name;
-        let size = file.size;
-        let reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = function () {
-            let pic64 = reader.result;
-            // data:image/png;base64,iVBOR
-            let pic64v2 = pic64.split(',');
-            let contentType = pic64v2[0];
-            contentType = contentType.substring(5, 14);
-            console.log(contentType);
-            let picB64 = pic64v2[1];
+        this.fileUpload(this.state.file).then((response) => {
+            console.log(response.data);
+        });
 
-            let mak = (picB64, contentType, sliceSize) => {
-                contentType = contentType || '';
-                sliceSize = sliceSize || 512;
-
-                var byteCharacters = atob(picB64);
-                var byteArrays = [];
-
-                console.log('in Blob');
-
-                for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-                    var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-                    var byteNumbers = new Array(slice.length);
-                    for (var i = 0; i < slice.length; i++) {
-                        byteNumbers[i] = slice.charCodeAt(i);
-                    }
-
-                    var byteArray = new Uint8Array(byteNumbers);
-
-                    byteArrays.push(byteArray);
-                }
-
-                var blob = new Blob(byteArrays, {type: contentType});
-                return blob;
-            };
-
-            var blobPic = mak(picB64, contentType);
-            console.log(blobPic);
-
-
-            console.log('contentType : ', contentType);
-            console.log(typeof pic64, pic64);
-            axios.post('http://10.150.14.40:8000/api/test', {
-                pic64 : blobPic,
-                path : path
-            }).then(res => console.log(res))
-                .catch(error => console.log(error));
-        }
     }
 
 
     render () {
-
-        console.log(this.state.picture);
-
+        console.log(this.state.name);
         return (
             <div className="form">
                 Form
@@ -94,6 +70,11 @@ export default class Form extends React.Component {
                                value={this.state.picture}
                                onChange={this.handleUserInput}
                                ref="file"
+                        />
+                        <br/>
+                        <input type="text"
+                               value={this.state.name}
+                               onChange={this.handleChangeName}
                         />
                         </div>
                     <button type="submit">Ajouter</button>

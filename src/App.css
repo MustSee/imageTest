@@ -32,8 +32,8 @@
 }
 
 .infoWindow {
-  width: 200px;
-  height: 200px;
+  max-width: 200px;
+  max-height: 200px;
   background-color: darkseagreen;
 }
 
@@ -52,4 +52,6 @@
   height: 20px;
   background-color: red;
   border-radius: 50%;
+  color : white;
+  text-align: center;
 }
